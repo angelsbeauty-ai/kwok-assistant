@@ -8,6 +8,18 @@
     "splash": {
       "backgroundColor": "#0f0f0f"
     },
-    "assetBundlePatterns": ["**/*"]
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kwok.assistant"
+    },
+    "android": {
+      "package": "com.kwok.assistant"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    }
   }
 }
