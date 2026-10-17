@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Kwok",
+    "slug": "kwok-assistant",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0f0f0f"
+    },
+    "assetBundlePatterns": ["**/*"]
+  }
+}
