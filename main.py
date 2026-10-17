@@ -2,10 +2,13 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 
 app = FastAPI(title="Kwok Assistant")
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 DEFAULT_RULES = """
 Talk in short, simple sentences. Use easy words. Be clear and straight to the point. No vague or long answers.
@@ -34,11 +37,11 @@ def build_system_prompt() -> str:
 
 {DEFAULT_RULES}
 
-Always follow these rules. Keep replies short and clear."""
+Always follow these rules strictly. Keep every reply short, clear, and practical."""
 
 @app.get("/")
 def root():
-    return {"status": "Kwok Assistant running", "phase": "1-chat"}
+    return {"status": "Kwok Assistant running", "phase": "1-real-chat"}
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
@@ -46,14 +49,27 @@ def chat(req: ChatRequest):
     if not user_msg:
         raise HTTPException(400, "Empty message")
 
-    # Phase 1: rule-aware placeholder (real LLM call next when API key is added)
-    # Detect if clarification is needed (simple heuristic for ADHD-style jumps)
-    needs_clear = len(user_msg.split()) < 4 or "?" not in user_msg and len(user_msg) < 20
+    if not os.getenv("OPENAI_API_KEY"):
+        raise HTTPException(500, "OPENAI_API_KEY not set")
 
-    if needs_clear:
-        reply = "What do you want to do with this? Tell me the goal in one short sentence."
-    else:
-        reply = f"Got it. Goal: {user_msg[:80]}...\n\nI will keep it short and practical. What is the next step you want?"
+    messages = [{"role": "system", "content": build_system_prompt()}]
+    for h in req.history[-6:]:
+        messages.append(h)
+    messages.append({"role": "user", "content": user_msg})
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0.4,
+            max_tokens=300
+        )
+        reply = response.choices[0].message.content.strip()
+    except Exception as e:
+        raise HTTPException(500, f"Model error: {str(e)}")
+
+    # Simple flag if the model asked a clarifying question
+    needs_clear = "?" in reply and len(reply) < 200
 
     return ChatResponse(reply=reply, needs_clarification=needs_clear)
 
