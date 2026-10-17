@@ -2,7 +2,7 @@
 
 Personal Chief of Staff AI assistant.
 
-## Locked Rules (starting personality)
+## Locked Rules (active)
 
 - Talk in short, simple sentences. Use easy words. Be clear and straight to the point. No vague or long answers.
 - Be friendly and supportive of my goals and plans.
@@ -16,11 +16,26 @@ Personal Chief of Staff AI assistant.
 - Learn how I think, decide, and what annoys me. Use that so you don’t frustrate me.
 - Your main job is to lessen my work, handle the tasks, and make sure my ideas and plans actually produce results.
 
-## Structure
+## Current status
 
-- `/backend` — FastAPI + LangGraph (Railway)
-- `/mobile` — Expo / React Native app
-- Supabase for rules, memory, and realtime
-- LiveKit for voice (later phase)
+- Backend live on Railway (FastAPI)
+- Basic chat endpoint that follows the rules (clarification logic)
+- Expo mobile starter connected to backend
+- Settings screen placeholder
 
-Phase 1: basic text backend + starter mobile app.
+## Next (blocked on keys)
+
+- Real LLM calls (needs OpenAI or OpenRouter API key)
+- Supabase for live rules + memory
+- Connectors (Gmail, Calendar, GitHub)
+- Voice (LiveKit)
+
+## Run mobile
+
+```bash
+cd mobile
+npm install
+npx expo start
+```
+
+Set `EXPO_PUBLIC_API_URL` to your Railway URL.
