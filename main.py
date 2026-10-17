@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
@@ -23,17 +23,43 @@ Your main job is to lessen my work, handle the tasks, and make sure my ideas and
 
 class ChatRequest(BaseModel):
     message: str
+    history: list[dict] = []
+
+class ChatResponse(BaseModel):
+    reply: str
+    needs_clarification: bool = False
+
+def build_system_prompt() -> str:
+    return f"""You are Kwok, a personal AI assistant.
+
+{DEFAULT_RULES}
+
+Always follow these rules. Keep replies short and clear."""
 
 @app.get("/")
 def root():
-    return {"status": "Kwok Assistant backend running", "phase": 1}
+    return {"status": "Kwok Assistant running", "phase": "1-chat"}
 
-@app.post("/chat")
+@app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    return {
-        "reply": f"I heard: {req.message}\n\n(Phase 1 starter \u2014 full assistant logic next)",
-        "rules_active": True
-    }
+    user_msg = req.message.strip()
+    if not user_msg:
+        raise HTTPException(400, "Empty message")
+
+    # Phase 1: rule-aware placeholder (real LLM call next when API key is added)
+    # Detect if clarification is needed (simple heuristic for ADHD-style jumps)
+    needs_clear = len(user_msg.split()) < 4 or "?" not in user_msg and len(user_msg) < 20
+
+    if needs_clear:
+        reply = "What do you want to do with this? Tell me the goal in one short sentence."
+    else:
+        reply = f"Got it. Goal: {user_msg[:80]}...\n\nI will keep it short and practical. What is the next step you want?"
+
+    return ChatResponse(reply=reply, needs_clarification=needs_clear)
+
+@app.get("/rules")
+def get_rules():
+    return {"rules": DEFAULT_RULES}
 
 if __name__ == "__main__":
     import uvicorn
