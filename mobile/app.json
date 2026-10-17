@@ -14,11 +14,9 @@
       "bundleIdentifier": "com.kwok.assistant"
     },
     "android": {
-      "package": "com.kwok.assistant"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "your-project-id-here"
+      "package": "com.kwok.assistant",
+      "adaptiveIcon": {
+        "backgroundColor": "#0f0f0f"
       }
     }
   }
